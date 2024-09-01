@@ -1,0 +1,140 @@
+---
+title: "Project 2"
+subtitle: "STATS 220 Semester One 2024"
+author: "Kabir Patel"
+output:
+  html_document:
+    code_folding: hide
+date: "2024-03-26"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=TRUE, message=FALSE, warning=FALSE, error=FALSE)
+
+library(tidyverse)
+
+learning_data <- read_csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vR6svAVLxL9_kPDjzcHTcHaQz4-sT-rjoJsyYnxdiRXRO8_1XeLx35yqzp7MO95qh_IYgIIT9Klv1_3/pub?gid=1952320354&single=true&output=csv") %>%
+  rename(weekly_screen_time = 2,
+         age = 3,
+         devices = 4,
+         activities = 5,
+         physical_discomfort = 6,
+         breaks = 7,
+         emotion_afterwards = 8,
+         satisfaction = 9)
+```
+
+```{css echo=FALSE}
+h1 {
+    background-color: #333;
+    color: #FFD700;
+    font-weight: bold;
+    text-align: center;
+    padding: 10px;
+    border: 2px solid black;;
+}
+
+h2 {
+    background-color: #444;
+    color: white;
+    text-align: center;
+    padding: 5px;
+    border: 2px solid black;;
+}
+
+h3 {
+    background-color: #555;
+    color: #00BFFF;
+    text-align: left;
+    font-style: italic;
+    padding: 5px;
+    font-family: 'Lobster', cursive;
+    border: 2px solid black;;
+}
+
+body {
+    font-size: 14pt;
+    font-family: 'Georgia', serif;
+    line-height: 1.6;
+    background-color:lightgrey;
+}
+
+p {
+    color: black;
+    font-size: 16px;
+    margin: 10px 0;
+    font-family: 'Open Sans', sans-serif;
+    
+}
+
+pre {
+    background-color: #ADD8E6;
+    padding: 10px;
+    font-family: monospace;
+    border: 2px solid black;
+
+
+```
+
+
+## Introduction
+For Project two in this Stats220 course I choose to gather data for peoples weekly screen time usage. 
+
+Guideline 4 for designing forms was about using validation rules for response to collect tidy data from the start. I did this for questions 1 and 2 where I had to collect a numeric response about peoples age and the amount of time they spent using an electronic device last week. For the age question I made it so you could only write in a number between 16-23 since I was focusing on this age group. For the weekly hours question I made it so you could not enter a number above 130 since there are 168 hours in a week. Considering sleeping time I shorter the max limit to 130 so I got sensible responses. 
+
+The second question "Roughly how many hours did you spend using electronic devices last week?" can allow us to analyze changes in human behavior over different weeks. By collecting data on weekly screen time usage we can start to develop patterns and trends seeing if there is a weekly change. We can then use the other data provided to see if there are factors influencing this and analyse some of the effects of high or low screen time usage. For example the questions about how you feel after long periods on the screen can tell us more about how the mental impacts longer screen time usage has on humans. 
+
+By comparing responses to the questions like did you have any psychical discomfort and how satisfied are you with your screen time habitats we can identify more patterns and devolop strategies to mange screen time. 
+
+https://docs.google.com/forms/d/e/1FAIpQLSdxst3WNYY0SPgX8q8t1CzjEeuxgUqtFRuT9kk2wjwV7QbZyQ/viewform
+
+## Analytics
+Most people who completed my form felt drained after long periods of screen time.
+
+Majority of the people who completed my form were 20 years old. 
+
+The two main actives people engaged in on their devices was browsing social media and studying/work for everyone who completed my form.
+
+```{r}
+paste("The average screentime for last week from all the responses was", round(mean(learning_data$weekly_screen_time)), "hours, with the highest screen time for a person being", max(learning_data$weekly_screen_time), "hours and the lowest being", min(learning_data$weekly_screen_time), "hours")
+
+
+learning_data %>% 
+  ggplot() +
+  geom_bar(aes(y = emotion_afterwards, fill = physical_discomfort)) + 
+  labs( title = "Physical vs Emotional",
+        subtitle = "Comparing Physical Discomfort and Emotional Feelings after Long Periods of Screentime",
+        caption = "Source: Survey conducted via Google Forms",
+        x = "Number of people",
+        y = "Feelings Afterwards"
+        )
+
+
+data_plot2 <- learning_data %>% 
+  separate_rows(devices, sep = ", ")
+
+
+data_plot2 %>%
+  ggplot() + 
+  geom_bar(aes(y = devices),
+           fill = "purple") + 
+  labs(title = " Device Usage Distribution Last Week",
+       subtitle = "The Number of People Using Different Devices",
+       caption = "Source: Survey conducted via Google Forms",
+       x = " Number of devices used",
+       y = "Device Type")
+         
+
+
+```
+
+
+
+```{r fig.width = 8, fig.height = 4}
+```
+
+
+## Creativity
+For the creativity part of this assignment I decided to add css code again to make the visual html look nicer. I used most of the same code as my last project to keep the same theme going. I changed all the border colors to black instead of having just the r code border purple and then I also made the body background color light grey so that it would make the plots stand out. 
+
+In my google forms I also used some creativity in making the form look more visually appealing. I added an animated purple header and made all the background colors a shade of purple to match. I also bolded all the questions and added italics as well as changing the fonts of the questions, text and title.  

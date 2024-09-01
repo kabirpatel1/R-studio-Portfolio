@@ -1,0 +1,95 @@
+---
+title: "Project 4"
+subtitle: "Visualising data about videos from the YouTube channels Sidemen and Koa Rothman"
+output:
+  html_document:
+    code_folding: hide
+author: Kabir Patel
+date: "2024-05-06"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=TRUE, message=FALSE, warning=FALSE, error=FALSE)
+```
+
+
+```{css echo=FALSE}
+h1 {
+    background-color: #333;
+    color: #FFD700;
+    font-weight: bold;
+    text-align: center;
+    padding: 10px;
+    border: 2px solid black;;
+}
+
+h2 {
+    background-color: #444;
+    color: white;
+    text-align: center;
+    padding: 5px;
+    border: 2px solid black;;
+}
+
+h3 {
+    background-color: #555;
+    color: #00BFFF;
+    text-align: left;
+    font-style: italic;
+    padding: 5px;
+    font-family: 'Lobster', cursive;
+    border: 2px solid black;;
+}
+
+body {
+    font-size: 14pt;
+    font-family: 'Georgia', serif;
+    line-height: 1.6;
+    background-color:lightgrey;
+}
+
+p {
+    color: black;
+    font-size: 16px;
+    margin: 10px 0;
+    
+    
+}
+
+pre {
+    background-color: #ADD8E6;
+    padding: 10px;
+    font-family: monospace;
+    border: 2px solid black;
+
+
+```
+
+
+## Introduction
+For project 4 I chose the Sidemen youtube channel and the Koa Rothman Youtube channel. This is becuase the difference in views and likes in these channels are drastically different but I wanted to see more about the like to view ratio. 
+
+One idea I had before hand was to see if the length of the video titles had any correlation to it's like/view ratio. Another idea I had was to see the differece in like/view ratio between the videos and how many different videos would fit in the different categories. 
+
+For plot 1 I decided to focus on the like/view ratio varible that I created and the the catergories varible that I also created. I thought the easiest way to show this clearly would be a bar graph geom_bar where you can see the average like view ratio for each categorys. 
+
+For plot 2 I decided to focus on the title length varible with the like/ view varibale and thought to best way to showcase this would be on a scatter plot using geom_point. 
+
+For plot 3 I used the ratio category with the mean view and used geom_boxplot to showcase a box and whisker for each of the categorys showing the range of them. I tried experimenting with a scatter with this but thought a box plot would be better. 
+
+
+## Dynamic data story
+![](data_story.gif)
+This shows some aspect of creativity as I used a grey and white color theme throughout which matches my report theme. I also used a times new roman font to make the text look more professional. I thought the use of three different graphical visualizations also showed creativity. 
+
+
+
+
+## Appendix
+```{r file='visualisations.R', eval=FALSE, echo=TRUE}
+
+```
+
+```{r file='data_story.R', eval=FALSE, echo=TRUE}
+
+```

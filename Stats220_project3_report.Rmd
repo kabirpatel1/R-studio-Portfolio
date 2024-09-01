@@ -1,0 +1,135 @@
+---
+title: "Project 3"
+subtitle: "STATS 220 Semester One 2024"
+output:
+  html_document:
+    code_folding: hide
+author: Kabir Patel
+date: "2024-04-23"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=TRUE, message=FALSE, warning=FALSE, error=FALSE)
+options(scipen = 100)
+library(tidyverse)
+photo_data <- read_csv("selected_photos.csv")
+```
+
+```{css echo=FALSE}
+h1 {
+    background-color: #333;
+    color: #FFD700;
+    font-weight: bold;
+    text-align: center;
+    padding: 10px;
+    border: 2px solid black;;
+}
+
+h2 {
+    background-color: #444;
+    color: white;
+    text-align: center;
+    padding: 5px;
+    border: 2px solid black;;
+}
+
+h3 {
+    background-color: #555;
+    color: #00BFFF;
+    text-align: left;
+    font-style: italic;
+    padding: 5px;
+    font-family: 'Lobster', cursive;
+    border: 2px solid black;;
+}
+
+body {
+    font-size: 14pt;
+    font-family: 'Georgia', serif;
+    line-height: 1.6;
+    background-color:lightgrey;
+}
+
+p {
+    color: black;
+    font-size: 16px;
+    margin: 10px 0;
+    
+    
+}
+
+pre {
+    background-color: #ADD8E6;
+    padding: 10px;
+    font-family: monospace;
+    border: 2px solid black;
+
+
+```
+
+#s# Introduction
+The two words I chose to use on pixabay was big animals as I like animals and thought there would be more then 200 results with these key words. Here are the top photos returend from this search.
+![](top_photos.png)
+
+The photos returned by this search are mostly landscape photos. The views on the photos range from about 10,000 to 100,000 with most of them having over 1k likes with a few photos below that. The downloads range from most of them having 100-500k downloads with a few in the 10-30k range. The main colours used in these photos are blacks, oranges, browns, whites with the main words being tagged in the photos being “tiger, lion, animal, cat, safari. 
+These are the urls of the photos: 
+`r photo_data %>% select(pageURL) %>% knitr::kable(format = "html")`
+![](my_photos.gif)
+
+
+## Key features of Selected Photos
+
+```{r}
+#To Calculate mean of downloads
+mean_downloads <- photo_data$downloads %>% 
+  mean(na.rm = TRUE) %>%
+  round(2)
+#To Calculate Max downloads of a photo
+max_downlaods <- photo_data$downloads %>%
+  max(na.rm = TRUE) 
+#To calculate mean download rate
+mean_download_rate = photo_data$download_rate %>%
+  mean(na.rm = TRUE) %>%
+  round(2)
+#To Calculate sum of downloads
+sum_downloads <- photo_data$downloads %>%
+  sum(na.rm = TRUE)
+#To compare to mean download rate with each of the three categories
+summs <- photo_data %>%
+  group_by(download_rate_category) %>%
+  summarise(mean_download_rate = mean(download_rate))
+
+```
+The mean downloads of the selected photos is `r mean_downloads` downloads.
+
+The max downloads for one photo is `r max_downlaods` downloads. 
+
+In total there have been `r sum_downloads` downloads from all of the photos combined.
+
+The mean download rate of the photos from people viewing the photo to downloading it is `r mean_download_rate`%.
+
+Here we can see the mean download rates for each of the categories:  `r knitr::kable(summs, format = "html")`
+
+
+## Creativity
+```{r}
+read_csv("selected_photos.csv") %>%
+  ggplot() +
+  geom_jitter(aes(x = views,
+                  y = download_rate,
+                  colour = download_rate_category)) + 
+  labs(title = "Download Rate vs Views",
+       subtitle = "Comparing the number of views a post has in relation to its downlaod conversion",
+       x = "Views",
+       y = "Download Rate %",
+       caption = "Source: Pixabay")
+```
+
+This has demonstrated creativity as I created a scatter plot comparing the number of views with my mutated variable of download rate. This adds onto my report nicely as it shows the different download rate categories with there related conversion percentage and views. 
+
+
+
+## Appendix
+```{r file='exploration.R', eval=FALSE, echo=TRUE}
+
+```
