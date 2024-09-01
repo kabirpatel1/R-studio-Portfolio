@@ -1,0 +1,229 @@
+---
+title: "STATS 201/8 Assignment 3"
+author: "Kabir Patel Kpat913"
+date: 'Due Date: 3pm, Thursday 24th August'
+output:
+  html_document:
+    fig_caption: yes
+    number_sections: yes
+  word_document:
+    number_sections: yes
+  pdf_document:
+    number_sections: yes
+---
+
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(fig.height=3)
+```
+
+```{r setup, echo=FALSE}
+## Do not delete this!
+## It loads the s20x library for you. If you delete it 
+## your document may not compile
+library(s20x)
+```
+
+# Question 1
+
+## Question of interest/goal of the study
+
+We wish to describe how the threat exposure score is related to the amount of total sleep species of mammals get.
+
+## Inspect the data:
+
+```{r,fig.height=4.5,fig.width=6}
+sleep.df=read.csv("Sleep.csv",header=T)
+
+plot(TotalSleep~Score, main="Total Sleep Time vs Threat Exposure Score",data=sleep.df)
+
+sleep.df=within(sleep.df,{logTotalSleep=log(TotalSleep)})
+
+plot(logTotalSleep~Score, main="log(Total Sleep Time) vs Threat Exposure Score",data=sleep.df)
+
+
+```
+
+## Look at the initial plots of the data and comment on them.
+
+The first scatter plot of Sleep vs threat exposure score looks to show a negative linear relationship between total sleep time and the threat exposure score. As the total sleep decreases the threat exposure score increases. The second scatter plot shows a negative exponential trend which suggests a log transformation is more appropriate.
+
+We can also see the scatter around the trend is more constant in the second scatter than the first.
+
+## Do the plots confirm the researchers belief that an exponential relationship is present? Briefly justify your answer.
+
+Yes the plots confirm the belief that an exponential relationship is present. This is due to the second scatter where we see a stepper negative slope around the sleep range from 0-10 hours then becoming more steady through the rest of the sleep.
+
+## Fit model and check assumptions.
+
+```{r,fig.height=5,fig.width=6}
+
+SleepScore.fit=lm(TotalSleep~Score, data=sleep.df)
+plot(SleepScore.fit, which=1)
+modelcheck(SleepScore.fit)
+
+SleepScore.fit2=lm(TotalSleep~Score+I(Score^2), data=sleep.df)
+plot(SleepScore.fit2,which=1)
+modelcheck(SleepScore.fit2)
+
+
+LogSleepScore.fit=lm(log(TotalSleep)~Score, data=sleep.df)
+plot(LogSleepScore.fit,which=1)
+modelcheck(LogSleepScore.fit)
+
+summary(SleepScore.fit)
+summary(SleepScore.fit2)
+summary(LogSleepScore.fit)
+confint(LogSleepScore.fit)
+exp(confint(LogSleepScore.fit))
+exp(coef(LogSleepScore.fit))
+
+
+```
+
+## Methods and assumption checks
+
+Residuals from a simple linear and quadratic model showed and failed the equality of variance and no-trend assumptions and so the TotalSleep was log transformed. A simple linear model fitted to logged TotalSleep and satisfied the assumptions the most out of the three models. The simple linear logged model showed the least amount of variance out of the 3 models and had a constant amount of scatter.
+
+Our final model is:
+
+$log(TotalSleep_i) = \beta_0 + \beta_1 \times Score_1 + \epsilon_i$
+
+where $\epsilon_i \sim iid ~ N(0,\sigma^2)$
+
+Our model explained a 68% of the variability in the logged TotalSleep.
+
+## Executive Summary.
+
+We wanted to see how threat exposure score in species of mammals relates to their total sleep.
+
+There was clear evidence that the threat exposure score had a exponential negative effect on on the species TotalSleep. With the threat score being higher, the TotalSleep was lower. (P-Value $\approx$ 0 thus being lower than the 5% level of significance.
+
+We estimate that the median TotalSleep for species was between 18.05 and 26.46 hours.
+
+# Question 2
+
+## Question of interest/goal of the study
+
+We want to know if the gender and height of subjects was related to their FEV. Also did any height effect on FEV depend on Gender (or vice versa).
+
+## Read in and inspect the data:
+
+```{r,fig.height=5,fig.width=7}
+FEV.df = read.csv("FEV.csv",header=TRUE, stringsAsFactors = TRUE)
+
+plot(FEV~Height,data=FEV.df,xlab = "Height (cm)", 
+     ylab = "Forced respiratory volume  (litres)",
+     main = "Forced respiratory volume by Height",
+     pch=ifelse(Sex=="Male","M","F"),
+     col=ifelse(Sex=="Male","red","blue"))
+legend('topleft',c('Male','Female'),col=c("red","blue"),pch=c('M', 'F'))
+
+```
+
+## Comment on plot
+
+A scatter plot of height versus FEV suggested that the positive relationship between height and FEV was reasonably linear within each gender (Male, Female), but that the slop could be different in the two groups. The Females look to have a more prominent height ranging from 150-170cm with their FEV ranging from 2-4, with not that constant of a scatter. The males height seems to have a larger range mostly from 150 - 185cm with their FEV ranging from 2 - 5, with a less constant scatter as they are taller.
+
+## Fit an appropriate linear model and Check Assumptions
+
+```{r,fig.height=4,fig.width=6}
+# NOTE: Both a log and linear model can be justified here. Though the log model does slightly improve the residuals, it is at a cost of added complexity. For simplicity, DO NOT use a log transformation.
+
+HeightSex2.fit=lm(FEV~Height*Sex, data=FEV.df)
+plot(HeightSex2.fit, which = 1)
+normcheck(HeightSex2.fit)
+cooks20x(HeightSex2.fit)
+summary(HeightSex2.fit)
+coef(HeightSex2.fit)[4]
+confint(HeightSex2.fit)
+10*confint(HeightSex2.fit)
+
+FEV.df$Sex2=relevel(FEV.df$Sex,ref="Male")
+HeightSex.fit2b=lm(FEV~Height*Sex2, data=FEV.df)
+modelcheck(HeightSex.fit2b)
+summary(HeightSex.fit2b)
+coef(summary(HeightSex.fit2b))
+confint(HeightSex.fit2b)
+10*confint(HeightSex.fit2b)
+
+
+
+```
+
+## Create a plot with the fitted lines from your model superimposed over it
+
+```{r,fig.height=5,fig.width=7}
+plot(FEV~Height,data=FEV.df,xlab = "Height (cm)", 
+     ylab = "Forced respiratory volume  (litres)",
+     main = "Forced respiratory volume by Height",
+     pch=ifelse(Sex=="Male","M","F"),
+     col=ifelse(Sex=="Male","red","blue"))
+legend('topleft',c('Male','Female'),col=c("red","blue"),pch=c('M', 'F'))
+b=HeightSex2.fit$coef
+abline(b[1:2], lty = 2, col = "black")
+abline(b[1] + b[3], b[2] + b[4], lty = 2, col="darkgreen")
+
+
+
+
+
+```
+
+## Use the predict function to produce interval estimates for the expected FEV levels for males and females with heights of 145 cm.
+
+```{r}
+
+predHeightSex.df = data.frame(Height = c(145),
+                             Sex = factor(c("Female", "Male")))
+
+predict(HeightSex2.fit,predHeightSex.df, interval="confidence")
+
+
+
+```
+
+## Use the predict function to produce a range of individual estimates of FEV levels for both males and females with heights with varying heights levels to the height at which males and females have the same FEV level (to the nearest cm).
+
+```{r}
+# Hint: I wonder what happens with the code below if you change mymodel.lm to your fitted model and then experiment with the range of numbers in the sequence (taking care that the 11 replications for Sex is tied to this).
+
+
+Male.df= data.frame(Sex=rep("Male",11),Height = seq(161,162,0.1))
+Female.df= data.frame(Sex=rep("Female",11),Height = seq(161,162,0.1))
+predMale=predict(HeightSex2.fit,newdata=Male.df)
+predFemale=predict(HeightSex2.fit,newdata=Female.df)
+
+cbind(Height = seq(161,162,0.1),predMale,predFemale,predMale-predFemale)
+```
+
+## For what value of height were the expected FEV levels for males and females approximately the same?
+
+162cm
+
+## Method and Assumption Checks
+
+As we have three variables two numeric and one categorical, we have fitted a linear model that used different intercept and slopes for each gender. We could not drop this interactive term of gender as the p value (2.2e-16) is less than the 5% significance level making it statistically significant.
+
+All model assumptions were satisfied
+
+Our final model is:
+
+$FEV_i = \beta_0 + \beta_1 \times Height_i + \beta_2 \times Sex_i + \beta_3 \times Sex_i \times Height_i + \epsilon_i$
+
+where $Sex_i = 1$ if subject i is a male, otherwise 0, and $\epsilon_i \sim iid ~ N(0,\sigma^2)$
+
+Our model explained a modest 57% of the variability in subjects' FEV levels.
+
+## Write sentences as if for an Executive Summary quantifying:
+
+### the expected FEV levels for both males and females with heights of 145 cm.
+
+The expected FEV level for males with heights of 145cm is an average 1.841941cm with an expected range of 1.617344L to 2.066538L. The expected FEV Level of females with heights of 145cm is an average 2.419711cm with an expected range of 2.186245L to 2.653177L.
+
+### the change in FEV levels associated with a 10cm increase in height for both males and females.
+
+Our analysis revealed that for every 10cm increase in height for females the average FEV levels would be between 0.1532140L and 0.4269895L, and for males the average FEV levels would be 0.5486353L and 0.7266896L.
+
+## Look at your output and plot with the fitted lines. Write 2-3 sentences of plain English to describe what is happening with the trends in the data.
+
+Both of these plots with the fitted lines are showing a positive linear trend. The male has a steeper slope which a lot of plots in the top right of the plot, which means there are more males whom are taller and also have a greater FEV level. The females heights are more from 150cm to 170cm showing a lower slope in their trend which could mean as they get taller their FEV levels are not increasing as much.
