@@ -1,0 +1,166 @@
+---
+title: "STATS 201/8 Assignment 5"
+author: "Kabir Patel Kpat913"
+date: 'Due Date: 3pm Thursday 12th October'
+output:
+  html_document:
+    fig_caption: yes
+    number_sections: yes
+  pdf_document: 
+    number_sections: yes
+  word_document: 
+    number_sections: yes
+---
+
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(fig.height=3)
+```
+
+```{r setup, echo=FALSE, warning=FALSE}
+## Do not delete this!
+## It loads the s20x library for you. If you delete it 
+## your document may not compile
+library(s20x)
+```
+
+# Question 1
+
+## Questions of Interest
+
+It was of interest to compare e-mail habits of adults, depending on their marital status.
+
+## Read in and inspect the data:
+
+```{r,fig.height=4.6,fig.width=6}
+email.df = read.csv("email.csv",stringsAsFactors = TRUE)
+summary(email.df)
+with(email.df, table(email))  
+plot(email~marital,data=email.df)
+```
+
+## Comment on plot(s) and/or summary statistics
+
+We can see here that the marital status of divorced had a count that was significantly less than the other two groups and that the never group had a count nearly twice the divorced group had. The married group also had a count more than twice what divorced had.
+
+## Fit and check model
+
+```{r}
+Emailmarital.gfit = glm(email~marital, family = poisson, data=email.df)
+plot(Emailmarital.gfit, which=1)
+summary(Emailmarital.gfit)
+1 - pchisq(35637, 3966)
+
+Emailmarital.gfit2 = glm(email~marital, family = quasipoisson, data=email.df)
+plot(Emailmarital.gfit2, which=4)
+summary(Emailmarital.gfit2)
+
+exp(confint(Emailmarital.gfit2))
+
+email.df$marital = relevel(email.df$marital, ref="married")
+emailmarital.gfit3 = glm(email~marital, family = quasipoisson, data = email.df)
+exp(confint(emailmarital.gfit3))
+
+email.df$marital = relevel(email.df$marital, ref="never")
+emailmarital.gfit4 = glm(email~marital, family = quasipoisson, data = email.df)
+exp(confint(emailmarital.gfit4))
+
+anova(Emailmarital.gfit2, test="F")
+
+
+
+
+
+
+```
+
+## Method and Assumption Checks
+
+As the response variable, emails, is a count, we have fitted a generalized linear model with a quasipoisson response distribution. We have one explanatory variable with three factors, Married, Divorced, Never.
+
+All assumptions were satisfied, there was evidence on the poisson model as the p-value was 0 which is lower then 0.05 so we can conclude that model was not adequate as there was overdispersion, thus using the quasipoisson model.
+
+For our final model, we assume that the email count for observation is poisson with mean $u_i$ where
+
+$log(u_i) = \beta_0 + \beta_1 \times maritalmarried_i + \beta_2 \times maritalnever_i$
+
+and where $maritalmarried_i$ and $maritalnever_i$ are dummy variables which take the value 1 if observation is from $maritalnever_i$, otherwise they are 0.
+
+We see that the marital status is significant as the Anova shows there is a difference between marital status because the p-value is lower than 0.05.
+
+## Executive Summary
+
+We wanted to know if there was a difference in the number of emails sent by the 3 different marital groups, (married, divorced, never).
+
+There is evidence of a difference in emails sent between the three groups, but the most significant difference is between married and divorced.
+
+We estimate that on average the divorced group send between 2.48% and 36.93% higher than someone with in the married group.
+
+------------------------------------------------------------------------
+
+# Question 2
+
+## Questions of Interest
+
+It was of interest to see how increasing APACHE II scores related to the mortality rate. In particular, to assess the effect of a 1 point or 5 point difference in APACHE II scores and to estimate mortality rates for APACHE II scores of 10, 20, 30 and 40.
+
+### Read in and inspect the data:
+
+```{r,fig.height=4.6,fig.width=6}
+Apache.df=read.csv("Apache.csv",header=TRUE)
+plot(deaths/number_of_patients~apache_score, 
+     ylab="prob. of death", 
+     xlab="APACHE II score",data=Apache.df)
+head(Apache.df)
+tail(Apache.df,10)
+
+```
+
+## Comment on plot
+
+We see that as the Apache II score increases the prob. of death increases as well. Notable S curve.
+
+\## Fit and check model
+
+```{r}
+Apache.fit=glm(deaths/number_of_patients~apache_score, family = binomial, data= Apache.df, weights = number_of_patients)
+plot(Apache.fit, which = 1)
+plot(Apache.fit, which = 4)
+summary(Apache.fit)
+1-pchisq(43.999, 36)
+exp(confint(Apache.fit))
+exp(5*confint(Apache.fit))
+
+```
+
+## Get intervals to predict the probability of a patient admitted to ICU dying with 30 days with APACHE II scores of 10, 20, 30 or 40.
+
+```{r}
+predn=predictGLM(Apache.fit, data.frame(apache_score=c(10,20,30,40)), type="response")
+predn
+
+     
+```
+
+## Method and Assumption Checks
+
+The data recorded the number of patients and deaths where we then got the probability of death from deaths/number of patients. We then fitted a Binomial GLM with a single predictor of Alpache score (numeric).
+
+There was no evidence of over dispersion as (p-Value = 0.169) so we can trust the results from this binomial model.
+
+Our final model:
+
+$log(prob_i) = \beta_0 + \beta_1 \times Alpache_i$
+
+where prob (probability of death) is deaths/number of patients.
+
+## Write sentences, as if for an Executive Summary, interpret your four predictions intervals.
+
+The probability of a patient admitted to ICU dying with 30 days with APACHE II score of 10 is between 0.196 and 0.298. This increases to between 0.446 and 0.565 for a score of 20, between 0.668 and 0.840 for a score of 30 and between 0.826 and 0.957 for a score of 40.
+
+## Write sentences, as if for an Executive Summary, quantifying the effect of a 1 point and 5 point increase in APPACHE II scores.
+
+We estimate that for every 1 point increase in the APPACHE II scores, the probability of death increases by between 1.089 - 1.159 and with a 5 point increase the probability of death increases by between 1.530 and 2.095.
+
+## If we overlaid the model on the original plot, what shape would it be? (See question sheet for options.)
+
+S-Shaped Curve
